@@ -33,7 +33,7 @@ export default class VR extends React.Component {
     planetRotation: new Animated.Value(0),
     keyCode: null,
     rotation: [0, 0, 0],
-    image: faceNeutral
+    cameraState: 0
   };
   componentDidMount() {
     let intervalId = setInterval(this.tick, 16);
@@ -63,15 +63,14 @@ export default class VR extends React.Component {
     let velocityX = this.state.velocityX;
     if (componentX > 900) velocityX = -1;
     else if (componentX < 100) velocityX = 1;
-    let image;
-    if (this.state.rotation[0] > 10) image = faceLenny;
-    else if (this.state.rotation[0] < -10) image = faceTroll;
-    else image = faceNeutral;
+    let cameraState = 0;
+    if (this.state.rotation[0] > 10) cameraState = 1;
+    else if (this.state.rotation[0] < -10) cameraState = -1;
     this.setState({
       componentX: componentX + velocityX * this.state.speed,
       velocityX,
       rotation: VrHeadModel.rotation(),
-      image
+      cameraState
     });
   };
 
@@ -87,7 +86,7 @@ export default class VR extends React.Component {
     const rotateY = 0;
     const translateX = 150;
     const translateZ = 150;
-    const image = this.state.image;
+    const cameraState = this.state.cameraState;
     return (
       <View onKeyPress={this.trigger}>
         <Pano source={asset('matrix.png')} />
@@ -139,11 +138,10 @@ export default class VR extends React.Component {
                 }}
                 lit
               />
-              <Image
+              <View
                 style={{
                   borderRadius: 20,
-                  backgroundColor: 'red',
-                  borderWidth: 10,
+                  backgroundColor: '#fff',
                   width: 200,
                   height: 115,
                   transform: [
@@ -152,27 +150,38 @@ export default class VR extends React.Component {
                     { translateZ: translateZ }
                   ]
                 }}
-                source={image}
-              />
-              <Text
-                style={{
-                  backgroundColor: '#777879',
-                  fontSize: 0.8,
-                  fontWeight: '400',
-                  layoutOrigin: [0.5, 0.5],
-                  paddingLeft: 0.2,
-                  paddingRight: 0.2,
-                  textAlign: 'center',
-                  textAlignVertical: 'center',
-                  transform: [
-                    { rotateY: rotateY },
-                    { translateX: degreesToPixels(translateX) },
-                    { translateZ: translateZ }
-                  ]
-                }}
               >
-                hello
-              </Text>
+                {cameraState === 0 && (
+                  <Image
+                    style={{
+                      borderRadius: 20,
+                      width: 200,
+                      height: 115
+                    }}
+                    source={faceNeutral}
+                  />
+                )}
+                {cameraState === 1 && (
+                  <Image
+                    style={{
+                      borderRadius: 20,
+                      width: 200,
+                      height: 115
+                    }}
+                    source={faceLenny}
+                  />
+                )}
+                {cameraState === -1 && (
+                  <Image
+                    style={{
+                      borderRadius: 20,
+                      width: 200,
+                      height: 115
+                    }}
+                    source={faceTroll}
+                  />
+                )}
+              </View>
             </View>
           </View>
         </CylindricalPanel>
