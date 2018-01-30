@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AmbientLight,
   PointLight,
@@ -12,8 +12,7 @@ import {
   Text,
   View,
   VrHeadModel
-} from 'react-vr';
-import KeyHandler, { KEYPRESS } from 'react-key-handler';
+} from "react-vr";
 
 const MAX_TEXTURE_WIDTH = 4096;
 const MAX_TEXTURE_HEIGHT = 720;
@@ -21,22 +20,34 @@ const degreesToPixels = degrees => -(degrees / 360) * MAX_TEXTURE_WIDTH;
 const PPM = 1 / (2 * Math.PI * 3) * MAX_TEXTURE_WIDTH;
 const AnimatedModel = Animated.createAnimatedComponent(Model);
 
-const faceNeutral = asset('neutral.svg');
-const faceTroll = asset('troll.jpg');
-const faceLenny = asset('lenny.jpg');
+//game
+const FIELD_WIDTH = 860;
+const FIELD_HEIGHT = 500;
+const VELOCITY_INCREMENT = 0.2;
+const BAR_SPEED = 6;
+const BAR_HEIGHT = 200;
+const BAR_WIDTH = 30;
+const BALL_SIZE = 30;
+
+const faceNeutral = asset("neutral.svg");
+const faceTroll = asset("troll.jpg");
+const faceLenny = asset("lenny.jpg");
 
 export default class VR extends React.Component {
   state = {
-    componentX: 1,
-    velocityX: 1,
-    speed: 10,
     planetRotation: new Animated.Value(0),
-    keyCode: null,
     rotation: [0, 0, 0],
-    cameraState: 0
+    aiBar: {},
+    ball: {
+      x: 0,
+      y: 0,
+      velX: 1,
+      velY: 5
+    }
+    //playerBar: {}
   };
   componentDidMount() {
-    let intervalId = setInterval(this.tick, 16);
+    let intervalId = setInterval(this.gameTick, 16);
     this.setState({
       intervalId
     });
@@ -55,22 +66,39 @@ export default class VR extends React.Component {
   };
 
   trigger = e => {
-    console.log('trigger', e);
+    console.log("trigger", e);
   };
 
-  tick = () => {
-    let componentX = this.state.componentX;
-    let velocityX = this.state.velocityX;
-    if (componentX > 900) velocityX = -1;
-    else if (componentX < 100) velocityX = 1;
-    let cameraState = 0;
-    if (this.state.rotation[0] > 10) cameraState = 1;
-    else if (this.state.rotation[0] < -10) cameraState = -1;
+  gameTick = () => {
+    let { ball } = this.state;
+    ball.x += ball.velX;
+    ball.y += ball.velY;
+
+    if (ball.y - +BALL_SIZE / 2 < -FIELD_HEIGHT / 2 && ball.velY < 0) {
+      ball.velY = -ball.velY;
+    }
+    if (ball.y + BALL_SIZE / 2 > FIELD_HEIGHT / 2 && ball.velY > 0) {
+      ball.velY = -ball.velY;
+    }
+
+    if (ball.x > FIELD_WIDTH / 2) this.reset();
+    else if (ball.x < -FIELD_WIDTH / 2) this.reset();
+
+    console.log(ball);
+
     this.setState({
-      componentX: componentX + velocityX * this.state.speed,
-      velocityX,
       rotation: VrHeadModel.rotation(),
-      cameraState
+      ball
+    });
+  };
+
+  reset = () => {
+    let { aiBar, ball } = this.state;
+    ball.x = ball.y = 0;
+
+    this.setState({
+      aiBar,
+      ball
     });
   };
 
@@ -83,13 +111,17 @@ export default class VR extends React.Component {
   };
 
   render() {
-    const rotateY = 0;
-    const translateX = 150;
-    const translateZ = 150;
-    const cameraState = this.state.cameraState;
+    const { rotation, ball } = this.state;
+    const rotationYMax = 150;
+    const aiBarY = 0;
+    let playerBarY = rotation[0] * 10;
+    //console.log(rotation[0], playerBarY);
+    if (playerBarY > rotationYMax) playerBarY = rotationYMax;
+    else if (playerBarY < -rotationYMax) playerBarY = -rotationYMax;
+
     return (
       <View onKeyPress={this.trigger}>
-        <Pano source={asset('matrix.png')} />
+        <Pano source={asset("matrix.png")} />
         <CylindricalPanel
           layer={{
             width: MAX_TEXTURE_WIDTH,
@@ -97,92 +129,101 @@ export default class VR extends React.Component {
             density: MAX_TEXTURE_WIDTH
           }}
           style={{
-            position: 'absolute'
+            position: "absolute"
           }}
         >
           <View
             style={{
               // View covering the cylinder. Center so contents appear in middle of cylinder.
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
               width: MAX_TEXTURE_WIDTH,
               height: MAX_TEXTURE_HEIGHT
             }}
           >
             <View>
-              <KeyHandler
-                keyEventName={KEYPRESS}
-                keyValue="s"
-                onKeyHandle={this.trigger}
-              />
               <AmbientLight intensity={1.6} />
-
-              <PointLight
-                style={{
-                  color: 'white',
-                  transform: [{ translate: [0, 0, 0] }]
-                }}
-              />
-
               <AnimatedModel
                 source={{
-                  obj: asset('earth/earth.obj'),
-                  mtl: asset('earth/earth.mtl')
+                  obj: asset("earth/earth.obj"),
+                  mtl: asset("earth/earth.mtl")
                 }}
                 style={{
                   transform: [
-                    { translate: [0, -3, -12] },
+                    { translate: [1200, 50, 0] },
                     { scale: 0.25 },
                     { rotateY: this.state.planetRotation }
                   ]
                 }}
                 lit
               />
-              <View
-                style={{
-                  borderRadius: 20,
-                  backgroundColor: '#fff',
-                  width: 200,
-                  height: 115,
-                  transform: [
-                    { rotateY: rotateY },
-                    { translateX: this.state.componentX },
-                    { translateZ: translateZ }
-                  ]
-                }}
-              >
-                {cameraState === 0 && (
-                  <Image
-                    style={{
-                      borderRadius: 20,
-                      width: 200,
-                      height: 115
-                    }}
-                    source={faceNeutral}
-                  />
-                )}
-                {cameraState === 1 && (
-                  <Image
-                    style={{
-                      borderRadius: 20,
-                      width: 200,
-                      height: 115
-                    }}
-                    source={faceLenny}
-                  />
-                )}
-                {cameraState === -1 && (
-                  <Image
-                    style={{
-                      borderRadius: 20,
-                      width: 200,
-                      height: 115
-                    }}
-                    source={faceTroll}
-                  />
-                )}
-              </View>
             </View>
+
+            <View
+              name="field"
+              style={{
+                position: "absolute",
+                borderRadius: 4,
+                borderWidth: 1,
+                backgroundColor: "#fff",
+                width: FIELD_WIDTH,
+                height: FIELD_HEIGHT,
+                transform: [
+                  { translateY: 0 },
+                  { translateX: 0 },
+                  { translateZ: 0 }
+                ]
+              }}
+            />
+
+            <View
+              name="playerBar"
+              style={{
+                position: "absolute",
+                borderRadius: 4,
+                borderWidth: 1,
+                backgroundColor: "#fff",
+                width: 30,
+                height: 200,
+                transform: [
+                  { translateY: playerBarY },
+                  { translateX: -400 },
+                  { translateZ: 0 }
+                ]
+              }}
+            />
+            <View
+              name="aiBar"
+              style={{
+                position: "absolute",
+                borderRadius: 4,
+                borderWidth: 1,
+                backgroundColor: "#fff",
+                width: 30,
+                height: 200,
+                transform: [
+                  { translateY: aiBarY },
+                  { translateX: 400 },
+                  { translateZ: 0 }
+                ]
+              }}
+            />
+            <View
+              name="ball"
+              style={{
+                position: "absolute",
+                borderRadius: 50,
+                borderWidth: 1,
+                backgroundColor: "#fff",
+                width: 30,
+                height: 30,
+                transform: [
+                  { translateY: ball.y },
+                  { translateX: ball.x },
+                  { translateZ: 0 }
+                ]
+              }}
+            />
           </View>
         </CylindricalPanel>
       </View>
@@ -190,4 +231,4 @@ export default class VR extends React.Component {
   }
 }
 
-AppRegistry.registerComponent('VR', () => VR);
+AppRegistry.registerComponent("VR", () => VR);
