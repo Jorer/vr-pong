@@ -40,7 +40,7 @@ export default class VR extends React.Component {
     rotation: [0, 0, 0],
     aiBar: {
       x: 0,
-      y: 0
+      y: 300
     },
     ball: {
       x: 0,
@@ -137,9 +137,8 @@ export default class VR extends React.Component {
   };
 
   render() {
-    const { rotation, ball } = this.state;
+    const { rotation, ball, aiBar } = this.state;
     const rotationYMax = 150;
-    const aiBarY = 0;
     let playerBarY = rotation[0] * 10;
     //console.log(rotation[0], playerBarY);
     if (playerBarY > rotationYMax) playerBarY = rotationYMax;
@@ -176,12 +175,21 @@ export default class VR extends React.Component {
                 }}
                 style={{
                   transform: [
-                    { translate: [1200, 50, 0] },
+                    { translate: [1000, 50, 0] },
                     { scale: 0.25 },
                     { rotateY: this.state.planetRotation }
                   ]
                 }}
                 lit
+              />
+              <Model
+                source={{
+                  obj: asset('monkey/monkey.obj')
+                }}
+                style={{
+                  color: '#af1e23',
+                  transform: [{ translate: [0, -3, -12] }]
+                }}
               />
             </View>
 
@@ -228,7 +236,7 @@ export default class VR extends React.Component {
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
-                  { translateY: aiBarY },
+                  { translateY: aiBar.y },
                   { translateX: 400 },
                   { translateZ: 0 }
                 ]
