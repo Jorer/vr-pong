@@ -40,7 +40,7 @@ export default class VR extends React.Component {
     rotation: [0, 0, 0],
     aiBar: {
       x: 0,
-      y: 300
+      y: 0
     },
     ball: {
       x: 0,
@@ -167,7 +167,28 @@ export default class VR extends React.Component {
             }}
           >
             <View>
-              <AmbientLight intensity={1.6} />
+              <AmbientLight intensity={0.6} />
+              <PointLight
+                style={{
+                  color: 'white',
+                  transform: [{ translate: [700, 200, 20] }]
+                }}
+              />
+              <AnimatedModel
+                source={{
+                  obj: asset('monkey/monkey.obj'),
+                  mtl: asset('monkey/monkey.mtl')
+                }}
+                style={{
+                  color: '#061d54',
+                  transform: [
+                    { translate: [0, -360, 0] },
+                    { scale: 0.6 },
+                    { rotateY: this.state.planetRotation }
+                  ]
+                }}
+                lit
+              />
               <AnimatedModel
                 source={{
                   obj: asset('earth/earth.obj'),
@@ -181,15 +202,6 @@ export default class VR extends React.Component {
                   ]
                 }}
                 lit
-              />
-              <Model
-                source={{
-                  obj: asset('monkey/monkey.obj')
-                }}
-                style={{
-                  color: '#af1e23',
-                  transform: [{ translate: [0, -3, -12] }]
-                }}
               />
             </View>
 
