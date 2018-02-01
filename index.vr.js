@@ -180,10 +180,10 @@ export default class VR extends React.Component {
                   mtl: asset('monkey/monkey.mtl')
                 }}
                 style={{
-                  color: '#061d54',
+                  color: '#ffab19',
                   transform: [
-                    { translate: [0, -360, 0] },
-                    { scale: 0.6 },
+                    { translate: [1300, 0, 0] },
+                    { scale: 1 },
                     { rotateY: this.state.planetRotation }
                   ]
                 }}
