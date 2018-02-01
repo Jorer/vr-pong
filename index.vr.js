@@ -25,6 +25,8 @@ const BAR_SPEED = 6;
 const BAR_HEIGHT = 200;
 const BAR_WIDTH = 10;
 const BALL_SIZE = 30;
+const BALL_VEL_X = 4;
+const BALL_VEL_Y = 1;
 
 const FIELD_WIDTH = 800 + 2 * BAR_WIDTH;
 const FIELD_HEIGHT = 500;
@@ -43,17 +45,14 @@ export default class VR extends React.Component {
       x: 0,
       y: 0
     },
-    playerBar: {
-      x: 0,
-      y: 0
-    },
     ball: {
       x: 0,
       y: 0,
-      velX: -2,
-      velY: 0
-    }
-    //playerBar: {}
+      velX: BALL_VEL_X,
+      velY: BALL_VEL_Y
+    },
+    score1: 0,
+    score2: 0
   };
   componentDidMount() {
     let intervalId = setInterval(this.gameTick, 16);
@@ -79,12 +78,11 @@ export default class VR extends React.Component {
   };
 
   gameTick = () => {
-    let { ball, aiBar, playerBar, rotation } = this.state;
-    playerBar.y = rotation[0] * 10;
+    let { ball, aiBar, rotation } = this.state;
+    let playerBarY = rotation[0] * 10;
 
-    //console.log(rotation[0], playerBarY);
-    if (playerBar.y > Y_MAX) playerBar.y = Y_MAX;
-    else if (playerBar.y < -Y_MAX) playerBar.y = -Y_MAX;
+    if (playerBarY > Y_MAX) playerBarY = Y_MAX;
+    else if (playerBarY < -Y_MAX) playerBarY = -Y_MAX;
 
     ball.x += ball.velX;
     ball.y += ball.velY;
@@ -100,37 +98,35 @@ export default class VR extends React.Component {
 
     // Ball on left
     if (ball.x < -FIELD_WIDTH / 2 + BALL_SIZE) {
-      console.log(ball.y, playerBar.y, playerBar.y + BAR_HEIGHT);
-      console.log(ball.y > playerBar.y, ball.y < playerBar.y + BAR_HEIGHT);
+      console.log(ball.y, playerBarY, playerBarY + BAR_HEIGHT);
+      console.log(ball.y > playerBarY, ball.y < playerBarY + BAR_HEIGHT);
       if (
-        ball.y > playerBar.y - BAR_HEIGHT / 2 &&
-        ball.y < playerBar.y + BAR_HEIGHT / 2
+        ball.y > playerBarY - BAR_HEIGHT / 2 &&
+        ball.y < playerBarY + BAR_HEIGHT / 2
       ) {
-        ball.velX = -(ball.velX + VELOCITY_INCREMENT);
-        let deltaY = ball.y - playerBar.y;
+        ball.velX = -ball.velX;
+        let deltaY = ball.y - playerBarY;
         ball.velY = deltaY * VELOCITY_INCREMENT;
       } else {
         // player 1 scores
         //score1++;
-        this.reset();
+        this.reset(2);
       }
-    }
-
-    // Ball on right
-    if (ball.x > FIELD_WIDTH / 2 - BALL_SIZE) {
+    } else if (ball.x > FIELD_WIDTH / 2 - BALL_SIZE) {
+      // Ball on right
       console.log(ball.y, aiBar.y, aiBar.y + BAR_HEIGHT);
       console.log(ball.y > aiBar.y, ball.y < aiBar.y + BAR_HEIGHT);
       if (
         ball.y > aiBar.y - BAR_HEIGHT / 2 &&
         ball.y < aiBar.y + BAR_HEIGHT / 2
       ) {
-        ball.velX = -ball.velX;
+        ball.velX = -(ball.velX + VELOCITY_INCREMENT);
         let deltaY = ball.y - aiBar.y;
         ball.velY = deltaY * VELOCITY_INCREMENT;
       } else {
         // player 1 scores
         //score1++;
-        this.reset();
+        this.reset(1);
       }
     }
 
@@ -141,29 +137,29 @@ export default class VR extends React.Component {
       aiBar.y -= BAR_SPEED;
     }
 
-    // Reset
-    //    if (ball.x > FIELD_WIDTH / 2) this.reset();
-    //  else if (ball.x < -FIELD_WIDTH / 2) this.reset();
-
-    //console.log(ball);
-
     this.setState({
       rotation: VrHeadModel.rotation(),
       ball,
-      aiBar,
-      playerBar
+      aiBar
     });
   };
 
-  reset = () => {
-    let { aiBar, ball } = this.state;
+  reset = playerInt => {
+    let { aiBar, ball, score1, score2 } = this.state;
     ball.x = ball.y = 0;
-    ball.velX = 1;
-    ball.velY = 1;
+    ball.velX = BALL_VEL_X;
+    ball.velY = BALL_VEL_Y;
+
+    if (playerInt === 1) score1++;
+    else if (playerInt === 2) score2++;
+
+    console.log(playerInt, score1, score2);
 
     this.setState({
       aiBar,
-      ball
+      ball,
+      score1,
+      score2
     });
   };
 
@@ -176,7 +172,12 @@ export default class VR extends React.Component {
   };
 
   render() {
-    const { rotation, ball, aiBar, playerBar } = this.state;
+    const { rotation, ball, aiBar } = this.state;
+
+    let playerBarY = rotation[0] * 10;
+
+    if (playerBarY > Y_MAX) playerBarY = Y_MAX;
+    else if (playerBarY < -Y_MAX) playerBarY = -Y_MAX;
 
     return (
       <View onKeyPress={this.trigger}>
@@ -185,7 +186,7 @@ export default class VR extends React.Component {
           layer={{
             width: MAX_TEXTURE_WIDTH,
             height: MAX_TEXTURE_HEIGHT,
-            density: MAX_TEXTURE_WIDTH * 2
+            density: MAX_TEXTURE_WIDTH
           }}
           style={{
             position: 'absolute'
@@ -267,7 +268,7 @@ export default class VR extends React.Component {
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
-                  { translateY: playerBar.y },
+                  { translateY: playerBarY },
                   { translateX: -400 },
                   { translateZ: 0 }
                 ]
@@ -305,6 +306,39 @@ export default class VR extends React.Component {
                 ]
               }}
             />
+
+            <View
+              style={{
+                position: 'absolute',
+                backgroundColor: '#fff',
+                transform: [{ translateX: -200 }, { translateY: 200 }]
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: '#000'
+                }}
+              >
+                {this.state.score1}
+              </Text>
+            </View>
+            <View
+              style={{
+                position: 'absolute',
+                backgroundColor: '#fff',
+                transform: [{ translateX: 200 }, { translateY: 200 }]
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 40,
+                  color: '#000'
+                }}
+              >
+                {this.state.score2}
+              </Text>
+            </View>
           </View>
         </CylindricalPanel>
       </View>
