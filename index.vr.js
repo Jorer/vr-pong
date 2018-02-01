@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AmbientLight,
   PointLight,
@@ -12,7 +12,7 @@ import {
   Text,
   View,
   VrHeadModel
-} from 'react-vr';
+} from "react-vr";
 
 const MAX_TEXTURE_WIDTH = 4096;
 const MAX_TEXTURE_HEIGHT = 720;
@@ -21,21 +21,21 @@ const PPM = 1 / (2 * Math.PI * 3) * MAX_TEXTURE_WIDTH;
 const AnimatedModel = Animated.createAnimatedComponent(Model);
 
 //game
-const BAR_SPEED = 6;
+const BAR_SPEED = 4;
 const BAR_HEIGHT = 200;
 const BAR_WIDTH = 10;
 const BALL_SIZE = 30;
-const BALL_VEL_X = 4;
+const BALL_VEL_X = 6;
 const BALL_VEL_Y = 1;
 
 const FIELD_WIDTH = 800 + 2 * BAR_WIDTH;
 const FIELD_HEIGHT = 500;
-const VELOCITY_INCREMENT = 0.2;
+const VELOCITY_INCREMENT = 0.3;
 const Y_MAX = 150;
 
-const faceNeutral = asset('neutral.svg');
-const faceTroll = asset('troll.jpg');
-const faceLenny = asset('lenny.jpg');
+const faceNeutral = asset("neutral.svg");
+const faceTroll = asset("troll.jpg");
+const faceLenny = asset("lenny.jpg");
 
 export default class VR extends React.Component {
   state = {
@@ -74,7 +74,7 @@ export default class VR extends React.Component {
   };
 
   trigger = e => {
-    console.log('trigger', e);
+    console.log("trigger", e);
   };
 
   gameTick = () => {
@@ -98,34 +98,28 @@ export default class VR extends React.Component {
 
     // Ball on left
     if (ball.x < -FIELD_WIDTH / 2 + BALL_SIZE) {
-      console.log(ball.y, playerBarY, playerBarY + BAR_HEIGHT);
-      console.log(ball.y > playerBarY, ball.y < playerBarY + BAR_HEIGHT);
       if (
-        ball.y > playerBarY - BAR_HEIGHT / 2 &&
-        ball.y < playerBarY + BAR_HEIGHT / 2
+        ball.y > playerBarY - BAR_HEIGHT / 2 - BALL_SIZE / 2 &&
+        ball.y < playerBarY + BAR_HEIGHT / 2 + BALL_SIZE / 2
       ) {
         ball.velX = -ball.velX;
-        let deltaY = ball.y - playerBarY;
+        let deltaY = (ball.y - playerBarY) / 2;
         ball.velY = deltaY * VELOCITY_INCREMENT;
       } else {
         // player 1 scores
-        //score1++;
         this.reset(2);
       }
     } else if (ball.x > FIELD_WIDTH / 2 - BALL_SIZE) {
       // Ball on right
-      console.log(ball.y, aiBar.y, aiBar.y + BAR_HEIGHT);
-      console.log(ball.y > aiBar.y, ball.y < aiBar.y + BAR_HEIGHT);
       if (
-        ball.y > aiBar.y - BAR_HEIGHT / 2 &&
-        ball.y < aiBar.y + BAR_HEIGHT / 2
+        ball.y > aiBar.y - BAR_HEIGHT / 2 - BALL_SIZE / 2 &&
+        ball.y < aiBar.y + BAR_HEIGHT / 2 + BALL_SIZE / 2
       ) {
         ball.velX = -(ball.velX + VELOCITY_INCREMENT);
-        let deltaY = ball.y - aiBar.y;
+        let deltaY = (ball.y - aiBar.y) / 2;
         ball.velY = deltaY * VELOCITY_INCREMENT;
       } else {
         // player 1 scores
-        //score1++;
         this.reset(1);
       }
     }
@@ -136,6 +130,8 @@ export default class VR extends React.Component {
     } else {
       aiBar.y -= BAR_SPEED;
     }
+    if (aiBar.y > Y_MAX) aiBar.y = Y_MAX;
+    else if (aiBar.y < -Y_MAX) aiBar.y = -Y_MAX;
 
     this.setState({
       rotation: VrHeadModel.rotation(),
@@ -181,7 +177,7 @@ export default class VR extends React.Component {
 
     return (
       <View onKeyPress={this.trigger}>
-        <Pano source={asset('matrix.png')} />
+        <Pano source={asset("matrix.png")} />
         <CylindricalPanel
           layer={{
             width: MAX_TEXTURE_WIDTH,
@@ -189,14 +185,14 @@ export default class VR extends React.Component {
             density: MAX_TEXTURE_WIDTH
           }}
           style={{
-            position: 'absolute'
+            position: "absolute"
           }}
         >
           <View
             style={{
               // View covering the cylinder. Center so contents appear in middle of cylinder.
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: "center",
+              justifyContent: "center",
               width: MAX_TEXTURE_WIDTH,
               height: MAX_TEXTURE_HEIGHT
               //transform: [{ scale: 0.5 }]
@@ -206,17 +202,17 @@ export default class VR extends React.Component {
               <AmbientLight intensity={0.6} />
               <PointLight
                 style={{
-                  color: 'white',
+                  color: "white",
                   transform: [{ translate: [700, 200, 20] }]
                 }}
               />
               <AnimatedModel
                 source={{
-                  obj: asset('monkey/monkey.obj'),
-                  mtl: asset('monkey/monkey.mtl')
+                  obj: asset("monkey/monkey.obj"),
+                  mtl: asset("monkey/monkey.mtl")
                 }}
                 style={{
-                  color: '#ffab19',
+                  color: "#ffab19",
                   transform: [
                     { translate: [1300, 0, 0] },
                     { scale: 1 },
@@ -227,8 +223,8 @@ export default class VR extends React.Component {
               />
               <AnimatedModel
                 source={{
-                  obj: asset('earth/earth.obj'),
-                  mtl: asset('earth/earth.mtl')
+                  obj: asset("earth/earth.obj"),
+                  mtl: asset("earth/earth.mtl")
                 }}
                 style={{
                   transform: [
@@ -244,10 +240,10 @@ export default class VR extends React.Component {
             <View
               name="field"
               style={{
-                position: 'absolute',
+                position: "absolute",
                 borderRadius: 4,
                 borderWidth: 1,
-                backgroundColor: '#fff',
+                backgroundColor: "#fff",
                 width: FIELD_WIDTH,
                 height: FIELD_HEIGHT,
                 transform: [
@@ -261,10 +257,10 @@ export default class VR extends React.Component {
             <Animated.View
               name="playerBar"
               style={{
-                position: 'absolute',
+                position: "absolute",
                 borderRadius: 4,
                 borderWidth: 1,
-                backgroundColor: '#fff',
+                backgroundColor: "#fff",
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
@@ -277,10 +273,10 @@ export default class VR extends React.Component {
             <Animated.View
               name="aiBar"
               style={{
-                position: 'absolute',
+                position: "absolute",
                 borderRadius: 4,
                 borderWidth: 1,
-                backgroundColor: '#fff',
+                backgroundColor: "#fff",
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
@@ -293,10 +289,10 @@ export default class VR extends React.Component {
             <Animated.View
               name="ball"
               style={{
-                position: 'absolute',
+                position: "absolute",
                 borderRadius: 50,
                 borderWidth: 1,
-                backgroundColor: '#fff',
+                backgroundColor: "#fff",
                 width: 30,
                 height: 30,
                 transform: [
@@ -309,15 +305,15 @@ export default class VR extends React.Component {
 
             <View
               style={{
-                position: 'absolute',
-                backgroundColor: '#fff',
+                position: "absolute",
+                backgroundColor: "#fff",
                 transform: [{ translateX: -200 }, { translateY: 200 }]
               }}
             >
               <Text
                 style={{
                   fontSize: 40,
-                  color: '#000'
+                  color: "#000"
                 }}
               >
                 {this.state.score1}
@@ -325,15 +321,15 @@ export default class VR extends React.Component {
             </View>
             <View
               style={{
-                position: 'absolute',
-                backgroundColor: '#fff',
+                position: "absolute",
+                backgroundColor: "#fff",
                 transform: [{ translateX: 200 }, { translateY: 200 }]
               }}
             >
               <Text
                 style={{
                   fontSize: 40,
-                  color: '#000'
+                  color: "#000"
                 }}
               >
                 {this.state.score2}
@@ -346,4 +342,4 @@ export default class VR extends React.Component {
   }
 }
 
-AppRegistry.registerComponent('VR', () => VR);
+AppRegistry.registerComponent("VR", () => VR);

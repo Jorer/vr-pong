@@ -3,14 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start":
-      "node -e \"console.log('open browser at http://localhost:8081/vr/\\n\\n');\" && node node_modules/react-native/local-cli/cli.js start",
+    "start": "node -e \"console.log('open browser at http://localhost:8081/vr/\\n\\n');\" && node node_modules/react-native/local-cli/cli.js start",
     "bundle": "node node_modules/react-vr/scripts/bundle.js",
     "open": "node -e \"require('xopen')('http://localhost:8081/vr/')\"",
     "devtools": "react-devtools",
     "test": "jest",
-    "sync":
-      "aws s3 sync vr/ s3://vr-pong && printf '\n\nopen client: http://vr-pong.s3-website.eu-central-1.amazonaws.com/\n'"
+    "sync": "aws s3 sync vr/ s3://vr-pong && printf '\n\nopen client: http://vr-pong.s3-website.eu-central-1.amazonaws.com/\n'"
   },
   "dependencies": {
     "ovrui": "~2.0.0",
