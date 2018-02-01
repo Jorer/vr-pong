@@ -258,7 +258,7 @@ export default class VR extends React.Component {
               }}
             />
 
-            <View
+            <Animated.View
               name="playerBar"
               style={{
                 position: 'absolute',
@@ -274,7 +274,7 @@ export default class VR extends React.Component {
                 ]
               }}
             />
-            <View
+            <Animated.View
               name="aiBar"
               style={{
                 position: 'absolute',
@@ -290,7 +290,7 @@ export default class VR extends React.Component {
                 ]
               }}
             />
-            <View
+            <Animated.View
               name="ball"
               style={{
                 position: 'absolute',
