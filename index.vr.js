@@ -33,10 +33,6 @@ const FIELD_HEIGHT = 500;
 const VELOCITY_INCREMENT = 0.3;
 const Y_MAX = 150;
 
-const faceNeutral = asset("neutral.svg");
-const faceTroll = asset("troll.jpg");
-const faceLenny = asset("lenny.jpg");
-
 export default class VR extends React.Component {
   state = {
     planetRotation: new Animated.Value(0),
