@@ -54,6 +54,7 @@ export default class VR extends React.Component {
     score1: 0,
     score2: 0
   };
+
   componentDidMount() {
     let intervalId = setInterval(this.gameTick, 16);
     this.setState({
@@ -61,21 +62,6 @@ export default class VR extends React.Component {
     });
     this.rotate();
   }
-
-  handleKeyEvent = e => {
-    this.setState({
-      keyCode: e.keyCode
-    });
-  };
-  handleKeyEvent = e => {
-    this.setState({
-      keyCode: null
-    });
-  };
-
-  trigger = e => {
-    console.log("trigger", e);
-  };
 
   gameTick = () => {
     let { ball, aiBar, rotation } = this.state;
@@ -149,8 +135,6 @@ export default class VR extends React.Component {
     if (playerInt === 1) score1++;
     else if (playerInt === 2) score2++;
 
-    console.log(playerInt, score1, score2);
-
     this.setState({
       aiBar,
       ball,
@@ -170,13 +154,15 @@ export default class VR extends React.Component {
   render() {
     const { rotation, ball, aiBar } = this.state;
 
+    const ballColor = Math.abs(ball.velY) > 8 ? "#e42d2d" : "#f0f0f0";
+
     let playerBarY = rotation[0] * 10;
 
     if (playerBarY > Y_MAX) playerBarY = Y_MAX;
     else if (playerBarY < -Y_MAX) playerBarY = -Y_MAX;
 
     return (
-      <View onKeyPress={this.trigger}>
+      <View>
         <Pano source={asset("matrix.png")} />
         <CylindricalPanel
           layer={{
@@ -260,7 +246,7 @@ export default class VR extends React.Component {
                 position: "absolute",
                 borderRadius: 4,
                 borderWidth: 1,
-                backgroundColor: "#fff",
+                backgroundColor: "#ffc107",
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
@@ -276,7 +262,7 @@ export default class VR extends React.Component {
                 position: "absolute",
                 borderRadius: 4,
                 borderWidth: 1,
-                backgroundColor: "#fff",
+                backgroundColor: "#9e9e9e",
                 width: BAR_WIDTH,
                 height: BAR_HEIGHT,
                 transform: [
@@ -292,7 +278,7 @@ export default class VR extends React.Component {
                 position: "absolute",
                 borderRadius: 50,
                 borderWidth: 1,
-                backgroundColor: "#fff",
+                backgroundColor: ballColor,
                 width: 30,
                 height: 30,
                 transform: [
