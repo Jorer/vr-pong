@@ -2,7 +2,7 @@
 
 Nausea inducing arcade classic, made with [React VR](https://facebook.github.io/react-360/)
 
-Try out the [demo](http://vr-pong.s3-website.eu-central-1.amazonaws.com/)
+Try out the [demo](http://pong.rasanen.net)
 
 # start
 - `npm i`
